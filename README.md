@@ -4,10 +4,10 @@
   <br><br>
 
   <a href="https://github.com/Niko1221/Strata"><img src="https://img.shields.io/badge/ENGINE-STRATA-8A2BE2?style=for-the-badge&logoColor=white" alt="Strata Engine"></a>
-  <img src="https://img.shields.io/badge/WINDOWS_10_/_11-NATIVE-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Windows 10/11">
-  <img src="https://img.shields.io/badge/DEPENDENCIES-ZERO-00C853?style=for-the-badge" alt="Zero Dependencies">
-  <img src="https://img.shields.io/badge/BUILD-CSC.EXE_(.NET)-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET Framework">
-  <img src="https://img.shields.io/badge/LICENSE-MIT-1f2937?style=for-the-badge" alt="MIT License">
+  <a href="#-quick-build--pin-10-seconds"><img src="https://img.shields.io/badge/WINDOWS_10_/_11-NATIVE-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Windows 10/11"></a>
+  <a href="StrataSmartToggle.cs"><img src="https://img.shields.io/badge/DEPENDENCIES-ZERO-00C853?style=for-the-badge" alt="Zero Dependencies"></a>
+  <a href="build.ps1"><img src="https://img.shields.io/badge/BUILD-CSC.EXE_(.NET)-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET Framework"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/LICENSE-MIT-1f2937?style=for-the-badge" alt="MIT License"></a>
 </div>
 
 <br>
@@ -91,5 +91,5 @@ Open **PowerShell** in the repository directory and run:
 ---
 
 <div align="center">
-  <sub>Built by <b>VKVstudio</b> • Released under the MIT License</sub>
+  <sub>Built by <a href="[https://vkvstudio.com](https://vkvstudio.com)"><b>VKVstudio</b></a> • Released under the <a href="LICENSE">MIT License</a></sub>
 </div>
