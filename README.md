@@ -3,11 +3,11 @@
 
   <br><br>
 
-  <a href="https://github.com/Niko1221/Strata"><img src="https://img.shields.io/badge/ENGINE-STRATA-8A2BE2?style=for-the-badge&logoColor=white" alt="Strata Engine"></a>
-  <img src="https://img.shields.io/badge/WINDOWS_10_/_11-NATIVE-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Windows 10/11">
-  <img src="https://img.shields.io/badge/DEPENDENCIES-ZERO-00C853?style=for-the-badge" alt="Zero Dependencies">
-  <img src="https://img.shields.io/badge/BUILD-CSC.EXE_(.NET)-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET Framework">
-  <img src="https://img.shields.io/badge/LICENSE-MIT-1f2937?style=for-the-badge" alt="MIT License">
+  <a href="[https://github.com/Niko1221/Strata](https://github.com/Niko1221/Strata)"><img src="[https://img.shields.io/badge/ENGINE-STRATA-8A2BE2?style=for-the-badge&logoColor=white](https://img.shields.io/badge/ENGINE-STRATA-8A2BE2?style=for-the-badge&logoColor=white)" alt="Strata Engine"></a>
+  <img src="[https://img.shields.io/badge/WINDOWS_10_/_11-NATIVE-0078D4?style=for-the-badge&logo=windows&logoColor=white](https://img.shields.io/badge/WINDOWS_10_/_11-NATIVE-0078D4?style=for-the-badge&logo=windows&logoColor=white)" alt="Windows 10/11">
+  <img src="[https://img.shields.io/badge/DEPENDENCIES-ZERO-00C853?style=for-the-badge](https://img.shields.io/badge/DEPENDENCIES-ZERO-00C853?style=for-the-badge)" alt="Zero Dependencies">
+  <img src="[https://img.shields.io/badge/BUILD-CSC.EXE_(.NET)-512BD4?style=for-the-badge&logo=dotnet&logoColor=white](https://img.shields.io/badge/BUILD-CSC.EXE_(.NET)-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)" alt=".NET Framework">
+  <img src="[https://img.shields.io/badge/LICENSE-MIT-1f2937?style=for-the-badge](https://img.shields.io/badge/LICENSE-MIT-1f2937?style=for-the-badge)" alt="MIT License">
 </div>
 
 <br>
@@ -21,8 +21,19 @@
 
 <table>
   <tr>
-    <td width="50%" valign="top">
-      <h3>🎛️ First-Run Setup Mode</h3>
+    <th width="50%">🎛️ First-Run Setup Mode</th>
+    <th width="50%">⚡ Compact Tray Badge Mode</th>
+  </tr>
+  <tr>
+    <td align="center" valign="middle">
+      <img src="First-Run-Setup-Mode.png" alt="First-Run Setup Mode" width="320">
+    </td>
+    <td align="center" valign="middle">
+      <img src="Compact-Badge-Mode.png" alt="Compact Tray Badge Mode" width="320">
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
       <p>Configure your local inference parameters once through a clean native flyout:</p>
       <ul>
         <li><b>Model / Quantization:</b> Select from <code>MODELS.md</code> or local weights (<code>Gyro-M</code>, <code>Gyro-S</code>, <code>Q2_0</code>, <code>IQ3_S</code>)</li>
@@ -30,8 +41,7 @@
         <li><b>Data Directory:</b> Custom path picker for <code>--data-dir</code> (e.g., <code>D:\Strata</code>)</li>
       </ul>
     </td>
-    <td width="50%" valign="top">
-      <h3>⚡ Compact Tray Badge Mode</h3>
+    <td valign="top">
       <p>On subsequent launches, the interface automatically collapses into a minimal status widget:</p>
       <ul>
         <li><b>Live Status Pill:</b> Displays active state in a single line:<br><code>⚡ Gyro-M • 64K • D:\Strata</code></li>
