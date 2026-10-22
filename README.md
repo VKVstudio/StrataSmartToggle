@@ -3,17 +3,17 @@
 
   <br><br>
 
-  <a href="[https://github.com/Niko1221/Strata](https://github.com/Niko1221/Strata)"><img src="[https://img.shields.io/badge/ENGINE-STRATA-8A2BE2?style=for-the-badge&logoColor=white](https://img.shields.io/badge/ENGINE-STRATA-8A2BE2?style=for-the-badge&logoColor=white)" alt="Strata Engine"></a>
-  <img src="[https://img.shields.io/badge/WINDOWS_10_/_11-NATIVE-0078D4?style=for-the-badge&logo=windows&logoColor=white](https://img.shields.io/badge/WINDOWS_10_/_11-NATIVE-0078D4?style=for-the-badge&logo=windows&logoColor=white)" alt="Windows 10/11">
-  <img src="[https://img.shields.io/badge/DEPENDENCIES-ZERO-00C853?style=for-the-badge](https://img.shields.io/badge/DEPENDENCIES-ZERO-00C853?style=for-the-badge)" alt="Zero Dependencies">
-  <img src="[https://img.shields.io/badge/BUILD-CSC.EXE_(.NET)-512BD4?style=for-the-badge&logo=dotnet&logoColor=white](https://img.shields.io/badge/BUILD-CSC.EXE_(.NET)-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)" alt=".NET Framework">
-  <img src="[https://img.shields.io/badge/LICENSE-MIT-1f2937?style=for-the-badge](https://img.shields.io/badge/LICENSE-MIT-1f2937?style=for-the-badge)" alt="MIT License">
+  <a href="https://github.com/Niko1221/Strata"><img src="https://img.shields.io/badge/ENGINE-STRATA-8A2BE2?style=for-the-badge&logoColor=white" alt="Strata Engine"></a>
+  <img src="https://img.shields.io/badge/WINDOWS_10_/_11-NATIVE-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Windows 10/11">
+  <img src="https://img.shields.io/badge/DEPENDENCIES-ZERO-00C853?style=for-the-badge" alt="Zero Dependencies">
+  <img src="https://img.shields.io/badge/BUILD-CSC.EXE_(.NET)-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET Framework">
+  <img src="https://img.shields.io/badge/LICENSE-MIT-1f2937?style=for-the-badge" alt="MIT License">
 </div>
 
 <br>
 
 > [!NOTE]
-> **StrataSmartToggle** turns [Strata](https://github.com/Niko1221/Strata) into a true Windows 11 background service. Launch massive local MoE models, switch context windows (`16K`–`128K`), and instantly reclaim VRAM from a sleek taskbar flyout without keeping console windows open.
+> **StrataSmartToggle** turns [Strata](https://github.com/Niko1221/Strata) into a true Windows 11 taskbar utility. Launch massive local MoE models, switch context windows (`16K`–`128K`), and instantly reclaim VRAM from a sleek taskbar flyout without keeping console windows open.
 
 ---
 
@@ -21,20 +21,20 @@
 
 <table>
   <tr>
-    <th width="50%">🎛️ First-Run Setup Mode</th>
-    <th width="50%">⚡ Compact Tray Badge Mode</th>
+    <th width="50%">🎛️ First-Run / Full Setup Mode</th>
+    <th width="50%">⚡ Subsequent Launch (Compact Mode)</th>
   </tr>
   <tr>
-    <td align="center" valign="middle">
-      <img src="First-Run-Setup-Mode.png" alt="First-Run Setup Mode" width="320">
+    <td align="center" valign="bottom">
+      <img src="First-Run-Setup-Mode.png" alt="First-Run Setup Mode" width="340">
     </td>
-    <td align="center" valign="middle">
-      <img src="Compact-Badge-Mode.png" alt="Compact Tray Badge Mode" width="320">
+    <td align="center" valign="bottom">
+      <img src="Compact-Badge-Mode.png" alt="Compact Launch Mode" width="340">
     </td>
   </tr>
   <tr>
     <td valign="top">
-      <p>Configure your local inference parameters once through a clean native flyout:</p>
+      <p>Configure your local inference parameters on first run (or anytime via <kbd>⚙️</kbd>):</p>
       <ul>
         <li><b>Model / Quantization:</b> Select from <code>MODELS.md</code> or local weights (<code>Gyro-M</code>, <code>Gyro-S</code>, <code>Q2_0</code>, <code>IQ3_S</code>)</li>
         <li><b>Context Selector:</b> Instant toggle between <kbd>16K</kbd> <kbd>32K</kbd> <kbd>64K</kbd> <kbd>128K</kbd></li>
@@ -42,11 +42,11 @@
       </ul>
     </td>
     <td valign="top">
-      <p>On subsequent launches, the interface automatically collapses into a minimal status widget:</p>
+      <p>On every subsequent launch, the window remembers your preset and opens in a compact 1-click mode:</p>
       <ul>
-        <li><b>Live Status Pill:</b> Displays active state in a single line:<br><code>⚡ Gyro-M • 64K • D:\Strata</code></li>
-        <li><b>1-Click Gear Toggle:</b> Expand full configuration settings anytime via <kbd>⚙️</kbd></li>
-        <li><b>Port Monitor:</b> Tracks active local server state on <code>:8080</code></li>
+        <li><b>Saved Preset Badge:</b> Shows active configuration in one line:<br><code>⚡ Gyro-M • 64K • D:\Strata</code></li>
+        <li><b>1-Click Action:</b> Instantly switches between <kbd>▶ LAUNCH STRATA</kbd> (Ready) and <kbd>■ STOP STRATA & FREE VRAM</kbd> (Running on <code>:8080</code>)</li>
+        <li><b>Gear Toggle:</b> Click <kbd>⚙️</kbd> in the title bar to expand full settings anytime</li>
       </ul>
     </td>
   </tr>
