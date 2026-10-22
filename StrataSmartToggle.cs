@@ -1,11 +1,12 @@
 ﻿// StrataSmartToggle for Windows 10/11
-// Smart native taskbar launcher & lifecycle controller for Niko1221/Strata.
+// Smart native taskbar launcher, tray minimizer & lifecycle controller for Niko1221/Strata.
 // Compiles out-of-the-box with built-in Windows .NET Framework csc.exe (zero external dependencies).
 // License: MIT
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -17,9 +18,11 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using Microsoft.Win32;
+using WinForms = System.Windows.Forms;
 
 namespace StrataSmartToggle
 {
@@ -85,6 +88,7 @@ namespace StrataSmartToggle
 
         private AppConfig config;
         private Window win;
+        private WinForms.NotifyIcon trayIcon;
         private StackPanel setupPanel;
         private Border summaryBadge;
         private TextBlock summaryText;
@@ -92,27 +96,17 @@ namespace StrataSmartToggle
         private TextBox dirBox;
         private Button actionBtn;
         private Button gearBtn;
-        private Ellipse statusDot;
+        private System.Windows.Shapes.Ellipse statusDot;
         private TextBlock statusLabel;
         private Button[] ctxButtons;
         private readonly string[] ctxOptions = new[] { "16k", "32k", "64k", "128k" };
         private bool isBusy = false;
         private bool isSetupVisible = false;
+        private bool allowClose = false;
 
-        // Official model presets from Niko1221/Strata docs/MODELS.md
         private static readonly string[] OfficialModels = new[] {
-            "Gyro-M",
-            "Gyro-S",
-            "IQ2_XS",
-            "Q2_0",
-            "IQ3_XXS",
-            "IQ3_S",
-            "IQ1_M",
-            "UD-IQ4_XS",
-            "UD-Q4_K_XL",
-            "NVFP4",
-            "NVFP4-QAD",
-            "Qwen3.6-35B-A3B"
+            "Gyro-M", "Gyro-S", "IQ2_XS", "Q2_0", "IQ3_XXS", "IQ3_S",
+            "IQ1_M", "UD-IQ4_XS", "UD-Q4_K_XL", "NVFP4", "NVFP4-QAD", "Qwen3.6-35B-A3B"
         };
 
         [STAThread]
@@ -151,15 +145,16 @@ namespace StrataSmartToggle
         private Window CreateMainWindow()
         {
             config = AppConfig.Load();
+            if (string.IsNullOrEmpty(config.DataDir)) config.DataDir = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
             bool light = IsLightTheme();
 
-            Color bgGlass = light ? Color.FromArgb(236, 246, 248, 252) : Color.FromArgb(232, 17, 20, 28);
-            Color surface = light ? Color.FromArgb(210, 255, 255, 255) : Color.FromArgb(175, 28, 33, 46);
-            Color fgMain  = light ? Color.FromRgb(15, 23, 42)          : Color.FromRgb(241, 245, 249);
-            Color fgSub   = light ? Color.FromRgb(100, 116, 139)       : Color.FromRgb(148, 163, 184);
-            Color borderC = light ? Color.FromArgb(45, 15, 23, 42)     : Color.FromArgb(55, 255, 255, 255);
-            Color accent  = SystemParameters.WindowGlassColor;
-            if (accent.A == 0) accent = Color.FromRgb(99, 102, 241);
+            System.Windows.Media.Color bgGlass = light ? System.Windows.Media.Color.FromArgb(236, 246, 248, 252) : System.Windows.Media.Color.FromArgb(232, 17, 20, 28);
+            System.Windows.Media.Color surface = light ? System.Windows.Media.Color.FromArgb(210, 255, 255, 255) : System.Windows.Media.Color.FromArgb(175, 28, 33, 46);
+            System.Windows.Media.Color fgMain  = light ? System.Windows.Media.Color.FromRgb(15, 23, 42)          : System.Windows.Media.Color.FromRgb(241, 245, 249);
+            System.Windows.Media.Color fgSub   = light ? System.Windows.Media.Color.FromRgb(100, 116, 139)       : System.Windows.Media.Color.FromRgb(148, 163, 184);
+            System.Windows.Media.Color borderC = light ? System.Windows.Media.Color.FromArgb(45, 15, 23, 42)     : System.Windows.Media.Color.FromArgb(55, 255, 255, 255);
+            System.Windows.Media.Color accent  = SystemParameters.WindowGlassColor;
+            if (accent.A == 0) accent = System.Windows.Media.Color.FromRgb(99, 102, 241);
 
             win = new Window {
                 Title = "StrataSmartToggle",
@@ -167,10 +162,38 @@ namespace StrataSmartToggle
                 SizeToContent = SizeToContent.Height,
                 WindowStyle = WindowStyle.None,
                 AllowsTransparency = true,
-                Background = Brushes.Transparent,
+                Background = System.Windows.Media.Brushes.Transparent,
                 ResizeMode = ResizeMode.NoResize,
                 Topmost = true,
                 WindowStartupLocation = WindowStartupLocation.Manual
+            };
+
+            // Setup System Tray Icon
+            string icoFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "strata-icon.ico");
+            trayIcon = new WinForms.NotifyIcon();
+            if (File.Exists(icoFile)) {
+                trayIcon.Icon = new Icon(icoFile);
+            } else {
+                trayIcon.Icon = SystemIcons.Application;
+            }
+            trayIcon.Text = "StrataSmartToggle (Idle)";
+            trayIcon.Visible = true;
+
+            var trayMenu = new WinForms.ContextMenuStrip();
+            trayMenu.Items.Add("Show Control Center", null, (s, e) => ShowWindow());
+            trayMenu.Items.Add("Open Web UI (:8080)", null, (s, e) => Process.Start(new ProcessStartInfo("http://127.0.0.1:" + config.Port) { UseShellExecute = true }));
+            trayMenu.Items.Add(new WinForms.ToolStripSeparator());
+            trayMenu.Items.Add("Exit StrataSmartToggle", null, (s, e) => { allowClose = true; trayIcon.Visible = false; win.Close(); });
+            trayIcon.ContextMenuStrip = trayMenu;
+
+            trayIcon.MouseClick += (s, e) => {
+                if (e.Button == WinForms.MouseButtons.Left) {
+                    if (win.IsVisible && win.WindowState != WindowState.Minimized) {
+                        HideWindow();
+                    } else {
+                        ShowWindow();
+                    }
+                }
             };
 
             win.SourceInitialized += (s, e) => {
@@ -180,6 +203,14 @@ namespace StrataSmartToggle
             };
 
             win.Loaded += (s, e) => RepositionNearTaskbar();
+
+            // Intercept close button (X) and minimize (-) to send window to tray instead of killing app
+            win.Closing += (s, e) => {
+                if (!allowClose) {
+                    e.Cancel = true;
+                    HideWindow();
+                }
+            };
 
             var card = new Border {
                 CornerRadius = new CornerRadius(14),
@@ -195,7 +226,7 @@ namespace StrataSmartToggle
             // --- HEADER ---
             var header = new DockPanel { Margin = new Thickness(0, 0, 0, 12) };
             var leftHdr = new StackPanel { Orientation = Orientation.Horizontal };
-            statusDot = new Ellipse { Width = 9, Height = 9, Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
+            statusDot = new System.Windows.Shapes.Ellipse { Width = 9, Height = 9, Margin = new Thickness(0, 0, 8, 0), VerticalAlignment = VerticalAlignment.Center };
             var titleTxt = new TextBlock { Text = "STRATA SMART TOGGLE", FontWeight = FontWeights.Bold, FontSize = 12.5, Foreground = new SolidColorBrush(fgMain), VerticalAlignment = VerticalAlignment.Center };
             statusLabel = new TextBlock { Text = "IDLE", FontSize = 11, Margin = new Thickness(8, 0, 0, 0), Foreground = new SolidColorBrush(fgSub), VerticalAlignment = VerticalAlignment.Center };
             leftHdr.Children.Add(statusDot);
@@ -206,7 +237,7 @@ namespace StrataSmartToggle
             gearBtn = new Button {
                 Content = "⚙", Width = 26, Height = 26, FontSize = 13,
                 ToolTip = "Configure Model, Context & Path",
-                Background = Brushes.Transparent, BorderThickness = new Thickness(0),
+                Background = System.Windows.Media.Brushes.Transparent, BorderThickness = new Thickness(0),
                 Foreground = new SolidColorBrush(fgSub), Cursor = Cursors.Hand,
                 Margin = new Thickness(0, 0, 2, 0)
             };
@@ -214,20 +245,20 @@ namespace StrataSmartToggle
 
             var minBtn = new Button {
                 Content = "─", Width = 26, Height = 26, FontSize = 12,
-                ToolTip = "Minimize to Taskbar",
-                Background = Brushes.Transparent, BorderThickness = new Thickness(0),
+                ToolTip = "Minimize to Tray",
+                Background = System.Windows.Media.Brushes.Transparent, BorderThickness = new Thickness(0),
                 Foreground = new SolidColorBrush(fgSub), Cursor = Cursors.Hand,
                 Margin = new Thickness(0, 0, 2, 0)
             };
-            minBtn.Click += (s, e) => { win.WindowState = WindowState.Minimized; };
+            minBtn.Click += (s, e) => HideWindow();
 
             var closeBtn = new Button {
                 Content = "✕", Width = 26, Height = 26, FontSize = 12,
-                ToolTip = "Close Window",
-                Background = Brushes.Transparent, BorderThickness = new Thickness(0),
+                ToolTip = "Minimize to Tray",
+                Background = System.Windows.Media.Brushes.Transparent, BorderThickness = new Thickness(0),
                 Foreground = new SolidColorBrush(fgSub), Cursor = Cursors.Hand
             };
-            closeBtn.Click += (s, e) => win.Close();
+            closeBtn.Click += (s, e) => HideWindow();
 
             rightHdr.Children.Add(gearBtn);
             rightHdr.Children.Add(minBtn);
@@ -237,7 +268,7 @@ namespace StrataSmartToggle
             header.Children.Add(leftHdr);
             root.Children.Add(header);
 
-            // --- QUICK SUMMARY PILL (Shown on 2nd+ launches) ---
+            // --- QUICK SUMMARY PILL ---
             summaryBadge = new Border {
                 Background = new SolidColorBrush(surface),
                 BorderBrush = new SolidColorBrush(borderC),
@@ -257,10 +288,9 @@ namespace StrataSmartToggle
             summaryBadge.Child = summaryText;
             root.Children.Add(summaryBadge);
 
-            // --- FIRST-TIME / EXPANDABLE SETUP DRAWER ---
+            // --- FIRST-TIME / SETUP DRAWER ---
             setupPanel = new StackPanel { Margin = new Thickness(0, 0, 0, 8) };
 
-            // 1. Model / Preset selector
             setupPanel.Children.Add(new TextBlock {
                 Text = "Model / Quantization (from MODELS.md or installed)",
                 FontSize = 11, Foreground = new SolidColorBrush(fgSub), Margin = new Thickness(0, 0, 0, 4)
@@ -274,7 +304,6 @@ namespace StrataSmartToggle
             modelBox.Text = config.Model;
             setupPanel.Children.Add(modelBox);
 
-            // 2. Context Window selector
             setupPanel.Children.Add(new TextBlock {
                 Text = "Context Window (--context)",
                 FontSize = 11, Foreground = new SolidColorBrush(fgSub), Margin = new Thickness(0, 0, 0, 4)
@@ -300,7 +329,6 @@ namespace StrataSmartToggle
             RefreshContextPills(accent, surface, fgMain, borderC);
             setupPanel.Children.Add(ctxGrid);
 
-            // 3. Data Directory (--data-dir)
             setupPanel.Children.Add(new TextBlock {
                 Text = "Strata Data Folder (--data-dir)",
                 FontSize = 11, Foreground = new SolidColorBrush(fgSub), Margin = new Thickness(0, 0, 0, 4)
@@ -313,14 +341,11 @@ namespace StrataSmartToggle
                 BorderBrush = new SolidColorBrush(borderC), BorderThickness = new Thickness(1)
             };
             browseBtn.Click += (s, e) => {
-                var dlg = new OpenFileDialog {
-                    Title = "Select any file inside your Strata folder (or type path)",
-                    CheckFileExists = false, CheckPathExists = true,
-                    FileName = "Select Folder"
-                };
-                if (Directory.Exists(dirBox.Text)) dlg.InitialDirectory = dirBox.Text;
-                if (dlg.ShowDialog() == true) {
-                    dirBox.Text = System.IO.Path.GetDirectoryName(dlg.FileName);
+                var dlg = new WinForms.FolderBrowserDialog();
+                dlg.Description = "Select Strata Data Directory";
+                if (Directory.Exists(dirBox.Text)) dlg.SelectedPath = dirBox.Text;
+                if (dlg.ShowDialog() == WinForms.DialogResult.OK) {
+                    dirBox.Text = dlg.SelectedPath;
                 }
             };
             DockPanel.SetDock(browseBtn, Dock.Right);
@@ -337,32 +362,32 @@ namespace StrataSmartToggle
 
             root.Children.Add(setupPanel);
 
-            // --- PRIMARY TOGGLE ACTION BUTTON ---
+            // --- PRIMARY ACTION BUTTON ---
             actionBtn = new Button {
                 Height = 40, FontSize = 13, FontWeight = FontWeights.Bold,
-                Foreground = Brushes.White, Cursor = Cursors.Hand,
+                Foreground = System.Windows.Media.Brushes.White, Cursor = Cursors.Hand,
                 BorderThickness = new Thickness(0), Margin = new Thickness(0, 2, 0, 8)
             };
             actionBtn.Click += async (s, e) => await ExecuteToggleAsync();
             root.Children.Add(actionBtn);
 
-            // --- FOOTER ACTIONS ---
+            // --- FOOTER ---
             var footer = new UniformGrid { Columns = 2, Height = 24 };
             var webBtn = new Button {
                 Content = "Open Web UI (:8080)", FontSize = 11,
-                Background = Brushes.Transparent, BorderThickness = new Thickness(0),
+                Background = System.Windows.Media.Brushes.Transparent, BorderThickness = new Thickness(0),
                 Foreground = new SolidColorBrush(fgSub), Cursor = Cursors.Hand,
                 HorizontalAlignment = HorizontalAlignment.Left
             };
             webBtn.Click += (s, e) => Process.Start(new ProcessStartInfo("http://127.0.0.1:" + config.Port) { UseShellExecute = true });
 
             var docsBtn = new Button {
-                Content = "GitHub Docs ↗", FontSize = 11,
-                Background = Brushes.Transparent, BorderThickness = new Thickness(0),
+                Content = "GitHub ↗", FontSize = 11,
+                Background = System.Windows.Media.Brushes.Transparent, BorderThickness = new Thickness(0),
                 Foreground = new SolidColorBrush(fgSub), Cursor = Cursors.Hand,
                 HorizontalAlignment = HorizontalAlignment.Right
             };
-            docsBtn.Click += (s, e) => Process.Start(new ProcessStartInfo("https://github.com/Niko1221/Strata") { UseShellExecute = true });
+            docsBtn.Click += (s, e) => Process.Start(new ProcessStartInfo("https://github.com/VKVstudio/StrataSmartToggle") { UseShellExecute = true });
 
             footer.Children.Add(webBtn);
             footer.Children.Add(docsBtn);
@@ -379,6 +404,19 @@ namespace StrataSmartToggle
             UpdateLiveStatus(accent);
 
             return win;
+        }
+
+        private void ShowWindow()
+        {
+            win.Show();
+            win.WindowState = WindowState.Normal;
+            win.Activate();
+            RepositionNearTaskbar();
+        }
+
+        private void HideWindow()
+        {
+            win.Hide();
         }
 
         private void PopulateModels()
@@ -426,31 +464,33 @@ namespace StrataSmartToggle
             win.Top  = wa.Bottom - win.ActualHeight - 14;
         }
 
-        private void RefreshContextPills(Color accent, Color surface, Color fgMain, Color borderC)
+        private void RefreshContextPills(System.Windows.Media.Color accent, System.Windows.Media.Color surface, System.Windows.Media.Color fgMain, System.Windows.Media.Color borderC)
         {
             for (int i = 0; i < ctxButtons.Length; i++) {
                 bool active = string.Equals(ctxOptions[i], config.Context, StringComparison.OrdinalIgnoreCase);
                 ctxButtons[i].Background  = new SolidColorBrush(active ? accent : surface);
-                ctxButtons[i].Foreground  = new SolidColorBrush(active ? Colors.White : fgMain);
+                ctxButtons[i].Foreground  = new SolidColorBrush(active ? System.Windows.Media.Colors.White : fgMain);
                 ctxButtons[i].BorderBrush = new SolidColorBrush(active ? accent : borderC);
             }
         }
 
-        private void UpdateLiveStatus(Color accent)
+        private void UpdateLiveStatus(System.Windows.Media.Color accent)
         {
             if (isBusy) return;
             bool online = IsPortListening(config.Port);
             if (online) {
-                statusDot.Fill = new SolidColorBrush(Color.FromRgb(34, 197, 94));
+                statusDot.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(34, 197, 94));
                 statusLabel.Text = "RUNNING • :" + config.Port;
                 actionBtn.Content = "■  STOP STRATA & FREE VRAM";
-                actionBtn.Background = new SolidColorBrush(Color.FromRgb(220, 38, 38));
+                actionBtn.Background = new SolidColorBrush(System.Windows.Media.Color.FromRgb(220, 38, 38));
+                if (trayIcon != null) trayIcon.Text = "StrataSmartToggle (" + config.Model + " @ " + config.Context.ToUpper() + " - RUNNING)";
             } else {
-                statusDot.Fill = new SolidColorBrush(Color.FromRgb(148, 163, 184));
+                statusDot.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(148, 163, 184));
                 statusLabel.Text = config.Configured ? "READY" : "SETUP";
                 string verb = isSetupVisible ? "▶  SAVE & LAUNCH STRATA" : "▶  LAUNCH STRATA (" + config.Context.ToUpper() + ")";
                 actionBtn.Content = verb;
                 actionBtn.Background = new SolidColorBrush(accent);
+                if (trayIcon != null) trayIcon.Text = "StrataSmartToggle (Idle)";
             }
         }
 
@@ -509,7 +549,7 @@ namespace StrataSmartToggle
                     }
                 }
             } catch (Exception ex) {
-                MessageBox.Show("Failed to execute Strata CLI:\n" + ex.Message, "StrataSmartToggle", MessageBoxButton.OK, MessageBoxImage.Warning);
+                System.Windows.Forms.MessageBox.Show("Failed to execute Strata CLI:\n" + ex.Message, "StrataSmartToggle", WinForms.MessageBoxButtons.OK, WinForms.MessageBoxIcon.Warning);
             } finally {
                 isBusy = false;
                 actionBtn.IsEnabled = true;
@@ -518,4 +558,3 @@ namespace StrataSmartToggle
         }
     }
 }
-

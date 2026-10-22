@@ -10,6 +10,7 @@ When running large MoE models locally on laptops or workstations (e.g., Gyro-M @
 - **Graceful VRAM/RAM Unload:** Calls `strata launch --stop --data-dir "..."`, waits for port `8080` to release, and cleanly closes the monitor terminal window.
 - **Zero External Dependencies:** Compiles in 1 second using the built-in `.NET Framework` compiler (`csc.exe`) pre-installed on every Windows 10/11 machine. No Visual Studio or third-party NuGet packages required.
 - **Native Windows 11 Look:** Follows system Light/Dark mode and Windows accent color, with a dedicated taskbar icon (never groups with PowerShell or `cmd.exe`).
+- **Compact Tray Badge Mode:** Remembers your configuration on subsequent launches, collapsing into a sleek single-line status badge on your taskbar.
 
 ## Quick Build & Run
 
