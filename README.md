@@ -29,7 +29,7 @@
       <img src="First-Run-Setup-Mode.png" alt="First-Run Setup Mode" width="340">
     </td>
     <td align="center" valign="bottom">
-      <img src="Compact-Badge-Mode.png" alt="Compact Launch Mode" width="340">
+      <img src="Compact-Badge-Mode.png" alt="Compact Launch Mode" width="340"> 
     </td>
   </tr>
   <tr>
