@@ -93,3 +93,10 @@ Open **PowerShell** in the repository directory and run:
 <div align="center">
   <sub>Built by <a href="[https://vkvstudio.com](https://vkvstudio.com)"><b>VKVstudio</b></a> • Released under the <a href="LICENSE">MIT License</a></sub>
 </div>
+
+---
+
+### 🤝 Acknowledgments
+* Core local MoE inference engine by [Niko1221/Strata](https://github.com/Niko1221/Strata).
+* Special thanks to [@Ronozion](https://github.com/Ronozion) for introducing the Strata architecture & testing feedback.
+
