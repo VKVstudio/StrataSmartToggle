@@ -100,3 +100,13 @@ Open **PowerShell** in the repository directory and run:
 * Core local MoE inference engine by [Niko1221/Strata](https://github.com/Niko1221/Strata).
 * Special thanks to [@Ronozion](https://github.com/Ronozion) for introducing the Strata architecture & testing feedback.
 
+  ---
+
+<div align="center">
+  <a href="https://github.com/VKVstudio/.github/blob/main/DONATE.md">
+    <img src="https://raw.githubusercontent.com/VKVstudio/.github/main/assets/support-button.svg" alt="Support the work" height="40" />
+  </a>
+  <br>
+  <sub>If this project saved you time, consider supporting its development.</sub>
+</div>
+
